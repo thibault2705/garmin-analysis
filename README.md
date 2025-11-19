@@ -29,4 +29,4 @@ Use notebooks in folder [./notebooks](https://github.com/thibault2705/garmin-ana
 ## Generated charts
 An example output from ```Fitness.plot_relationship_bubble_chart()```
 
-![Relationship Buble Chart](./charts/20251119103915_relationship_buble_chart.png)
+![Relationship Buble Chart](./images/20251119103915_relationship_buble_chart.png)
