@@ -29,4 +29,4 @@ Use notebooks in folder [./notebooks](https://github.com/thibault2705/garmin-ana
 ## Generated charts
 An example output from ```Fitness.plot_stress_duration_scatter_chart()```
 
-![Stress vs Duration Scatter Chart](images/20251119113713_stress_duration_scatter_chart.png)
+![Stress vs Duration Scatter Chart](images/20251119114728_stress_duration_scatter_chart.png)

@@ -198,7 +198,7 @@ class Fitness:
         plt.title('Training Load Profile by Activity Type')
         plt.xlabel('Activity Duration (Minutes)')
         plt.ylabel('Training Load Score (Stress)')
-        plt.legend(title='Fitness Type', bbox_to_anchor=(1.05, 1), loc='upper left')
+        plt.legend(title='Fitness Type', loc='upper left')
         plt.grid(True, linestyle='--', alpha=0.6)
 
         file_name = f"{cls._get_timestamp()}_stress_duration_scatter_chart.png"
