@@ -34,12 +34,31 @@ class Fitness:
     def get_all_activities_df(cls):
         fitness_activities = cls.get_all_activities()
 
-        return pd.DataFrame([vars(act) for act in fitness_activities])
+        df = pd.DataFrame([vars(act) for act in fitness_activities])
+
+        sub_sport_map = {
+            'strength_training': 'Strength Training',
+            'cardio_training': 'Cardio Training',
+            'hiit': 'HIIT'
+        }
+        df['sub_sport_label'] = df['sub_sport'].map(sub_sport_map)
+
+        return df
 
     @classmethod
     def _get_timestamp(cls):
         timestamp = datetime.now()
         return timestamp.strftime("%Y%m%d%H%M%S")
+
+    @classmethod
+    def _convert_to_minutes(cls, time_value):
+        if pd.isna(time_value):
+            return np.nan
+
+        time_str = str(time_value)
+
+        time_delta = pd.to_timedelta(time_str)
+        return time_delta.total_seconds() / 60.0
 
     @classmethod
     def plot_monthly_calories_line_chart(cls):
@@ -64,13 +83,6 @@ class Fitness:
     @classmethod
     def plot_training_load_by_sport_bar_chart(cls):
         df = cls.get_all_activities_df()
-        sub_sport_map = {
-            'strength_training': 'Strength Training',
-            'cardio_training': 'Cardio Training',
-            'hiit': 'HIIT'
-        }
-
-        df['sub_sport_label'] = df['sub_sport'].map(sub_sport_map)
 
         df_sub_sport_load = df.groupby('sub_sport_label')['training_load'].sum().sort_values(ascending=False)
 
@@ -114,7 +126,7 @@ class Fitness:
         print(f"Generated {file_name}")
 
     @classmethod
-    def plot_relationship_bubble_chart(cls):
+    def plot_hr_load_scatter_chart(cls):
         df = cls.get_all_activities_df()
         rng = np.random.RandomState(0)
 
@@ -162,6 +174,34 @@ class Fitness:
         plt.tight_layout()
 
         file_name = f"{cls._get_timestamp()}_activities_proportions_pie_chart.png"
+        plt.savefig(f'../charts/{file_name}')
+        plt.show()
+
+        print(f"Generated {file_name}")
+
+    @classmethod
+    def plot_stress_duration_scatter_chart(cls):
+        df = cls.get_all_activities_df()
+        df['duration_minutes'] = df['moving_time'].apply(cls._convert_to_minutes)
+
+        plt.figure(figsize=(10, 6))
+
+        sns.scatterplot(
+            data=df,
+            x='duration_minutes',
+            y='training_load',
+            hue='sub_sport_label',
+            s=200,
+            alpha=0.7
+        )
+
+        plt.title('Training Load Profile by Activity Type')
+        plt.xlabel('Activity Duration (Minutes)')
+        plt.ylabel('Training Load Score (Stress)')
+        plt.legend(title='Fitness Type', bbox_to_anchor=(1.05, 1), loc='upper left')
+        plt.grid(True, linestyle='--', alpha=0.6)
+
+        file_name = f"{cls._get_timestamp()}_stress_duration_scatter_chart.png"
         plt.savefig(f'../charts/{file_name}')
         plt.show()
 

@@ -27,6 +27,6 @@ Download all the data and create SQLite DB.
 Use notebooks in folder [./notebooks](https://github.com/thibault2705/garmin-analysis/tree/main/notebooks)
 
 ## Generated charts
-An example output from ```Fitness.plot_relationship_bubble_chart()```
+An example output from ```Fitness.plot_stress_duration_scatter_chart()```
 
-![Relationship Buble Chart](./images/20251119103915_relationship_buble_chart.png)
+![Stress vs Duration Scatter Chart](images/20251119113713_stress_duration_scatter_chart.png)
