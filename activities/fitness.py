@@ -5,6 +5,11 @@
  Description:
  """
 import pandas as pd
+import numpy as np
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+from datetime import datetime
 from garmindb import GarminConnectConfigManager
 
 from garmindb.garmindb import (
@@ -30,6 +35,137 @@ class Fitness:
         fitness_activities = cls.get_all_activities()
 
         return pd.DataFrame([vars(act) for act in fitness_activities])
+
+    @classmethod
+    def _get_timestamp(cls):
+        timestamp = datetime.now()
+        return timestamp.strftime("%Y%m%d%H%M%S")
+
+    @classmethod
+    def plot_monthly_calories_line_chart(cls):
+        df = cls.get_all_activities_df()
+        df_monthly = df.set_index('start_time')['calories'].resample('ME').sum().fillna(0)
+
+        plt.figure(figsize=(8, 4))
+        plt.plot(df_monthly.index, df_monthly.values, marker='o', linestyle='-', color='chocolate')
+        plt.xticks(rotation=90)
+        plt.title('Monthly Total Calories Burned Over Time')
+        plt.xlabel('Month End Date')
+        plt.ylabel('Total Calories')
+        plt.xticks(rotation=45)
+        plt.tight_layout()
+
+        file_name = f"{cls._get_timestamp()}_monthly_calories_line_chart.png"
+        plt.savefig(f'../charts/{file_name}')
+        plt.show()
+
+        print(f"Generated {file_name}")
+
+    @classmethod
+    def plot_training_load_by_sport_bar_chart(cls):
+        df = cls.get_all_activities_df()
+        sub_sport_map = {
+            'strength_training': 'Strength Training',
+            'cardio_training': 'Cardio Training',
+            'hiit': 'HIIT'
+        }
+
+        df['sub_sport_label'] = df['sub_sport'].map(sub_sport_map)
+
+        df_sub_sport_load = df.groupby('sub_sport_label')['training_load'].sum().sort_values(ascending=False)
+
+        plt.figure(figsize=(8, 4))
+        df_sub_sport_load.plot(kind='bar', color='cornflowerblue')
+        plt.xticks(rotation=90)
+        plt.xticks(rotation=90)
+        plt.title('Total Training Load by Fitness Activity Type')
+        plt.xlabel('Fitness Activity Type')
+        plt.ylabel('Total Training Load')
+        plt.xticks(rotation=0, ha='center')
+        plt.tight_layout()
+
+        file_name = f"{cls._get_timestamp()}_training_load_by_sport_bar_chart.png"
+        plt.savefig(f'../charts/{file_name}')
+        plt.show()
+
+        print(f"Generated {file_name}")
+
+
+    @classmethod
+    def plot_avg_hr_histogram(cls):
+        df = cls.get_all_activities_df()
+        plt.figure(figsize=(8, 4))
+
+        df['avg_hr'].hist(
+            bins=20,
+            edgecolor='black',
+            color='mediumturquoise',
+        )
+
+        plt.title('Distribution of Average Heart Rate (BPM)')
+        plt.xlabel('Average Heart Rate (BPM)')
+        plt.ylabel('Frequency (Number of Activities)')
+        plt.tight_layout()
+
+        file_name = f"{cls._get_timestamp()}_avg_hr_histogram.png"
+        plt.savefig(f'../charts/{file_name}')
+        plt.show()
+
+        print(f"Generated {file_name}")
+
+    @classmethod
+    def plot_relationship_bubble_chart(cls):
+        df = cls.get_all_activities_df()
+        rng = np.random.RandomState(0)
+
+        x = df['avg_hr']
+        y = df['training_load']
+        sizes = df['calories']
+
+        colors = rng.rand(len(x))
+
+        plt.scatter(x,
+                    y,
+                    c=colors,
+                    s=sizes,
+                    alpha=0.5,  # transparency
+                    cmap='coolwarm')
+
+        plt.title('Relationship: HR vs. Load, Colored and Sized by Calorie Range')
+        plt.xlabel('Average Heart Rate (BPM)')
+        plt.ylabel('Training Load')
+        plt.colorbar();  # show color scale
+
+        file_name = f"{cls._get_timestamp()}_relationship_buble_chart.png"
+        plt.savefig(f'../charts/{file_name}')
+        plt.show()
+
+        print(f"Generated {file_name}")
+
+    @classmethod
+    def plot_activities_proportions_pie_chart(cls):
+        df = cls.get_all_activities_df()
+        sub_sport_counts = df['sub_sport'].value_counts()
+
+        plt.figure(figsize=(5, 5))
+
+        plt.pie(
+            sub_sport_counts.values,  # The counts (values)
+            labels=sub_sport_counts.index,  # The sport names (labels)
+            autopct='%1.1f%%',  # Format to display percentages (e.g., 10.5%)
+            startangle=90,  # Start the first slice at the top
+            colors=sns.color_palette("Set2"),  # Use a pastel color palette
+            wedgeprops={'edgecolor': 'black'}  # Add borders to slices for clarity
+        )
+
+        plt.title('Proportion of Activities by Fitness Activity Type', fontsize=16)
+        plt.tight_layout()
+
+        file_name = f"{cls._get_timestamp()}_activities_proportions_pie_chart.png"
+        plt.savefig(f'../charts/{file_name}')
+        plt.show()
+
+        print(f"Generated {file_name}")
 
 
 class FitnessActivity(Activities):
